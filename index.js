@@ -34,7 +34,6 @@ aristas =
 
 const getAristas = (matriz, verticeInicio) => {
     let aristas = []
-    console.log(matriz, verticeInicio)
     matriz[verticeInicio].forEach((v,verticeDestino) => {
         if (verticeDestino != verticeInicio) {
             aristas.push({verticeOrigen:verticeInicio, verticeDestino: verticeDestino, peso:matriz[verticeInicio][verticeDestino]})
@@ -45,31 +44,32 @@ const getAristas = (matriz, verticeInicio) => {
 
 function greedyRandomized(matriz, vertices) {
     let actual = Math.floor(Math.random() * (vertices.length))  
-    const visitados = new Array(vertices.length).fill(false); 
-    visitados[actual] = true;
-    let totalVisitados = 1;
+    const visitados = new Array(vertices.length).fill(false) 
+    visitados[actual] = true
+    let totalVisitados = 1
+    let costo = vertices[actual] //costo del vertice inicial
     let res = []
+    res.push(actual)
     while (totalVisitados < vertices.length) {
         const aristas = getAristas(matriz, actual)
             .filter(arista => !visitados[arista.verticeDestino])
             .sort((a,b) => {
-                return a.peso - b.peso
+                return a.peso + vertices[a.verticeDestino] - b.peso + vertices[b.verticeDestino]
             })
-        console.log("aristas -----")
-        console.log(aristas)
         const siguiente = aristas[obtenerRandom(aristas)]
-        console.log("arista random -----")
-        console.log(siguiente)
-        res.push(siguiente)
+        res.push(siguiente.verticeDestino)
         actual = siguiente.verticeDestino
         visitados[actual] = true
         totalVisitados++
+        costo += siguiente.peso + vertices[actual]
     }
     //agrego la arista que regresa al vertice inicial para completar el circuito
-    const aristaInicio = res[0].verticeOrigen 
-    const aristaFin = res[res.length-1].verticeDestino
-    res.push({verticeOrigen:aristaFin, verticeDestino: aristaInicio, peso:matriz[aristaFin][aristaInicio]}) 
-    console.log(res)
+    const aristaInicio = res[0] 
+    const aristaFin = res[res.length-1]
+    res.push(aristaInicio)
+    costo += matriz[aristaFin][aristaInicio] + vertices[aristaInicio]
+    console.log([res, costo])
+    return [res, costo]
 } 
 
 function obtenerRandom(adyacentes){
@@ -89,3 +89,21 @@ function grasp(){
     greedyRandomized(ejemplo,vertices)
 }
 grasp()
+
+/*
+solucion greedy = 
+[
+  { verticeOrigen: 0, verticeDestino: 1, peso: 3 },
+  { verticeOrigen: 1, verticeDestino: 2, peso: 1 },
+  { verticeOrigen: 2, verticeDestino: 3, peso: 1 },
+  { verticeOrigen: 3, verticeDestino: 0, peso: 5 }
+] 
+luego de busqueda local
+
+[
+  { verticeOrigen: 3, verticeDestino: 2, peso: 1 },
+  { verticeOrigen: 2, verticeDestino: 0, peso: 1 },
+  { verticeOrigen: 0, verticeDestino: 1, peso: 3 },
+  { verticeOrigen: 1, verticeDestino: 3, peso: 4 }
+]
+ */
