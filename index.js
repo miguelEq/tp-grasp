@@ -58,8 +58,6 @@ function busquedaLocal(solucion, matriz, vertices) {
 				mejorSolucionVecindario = [swap(i, verticeSiguiente, [...solucionActual[0]]), costoNuevo]
 			}
 		}
-        console.log("FIN---------")
-        console.log(mejorSolucionVecindario)
 		if(!mejoroCosto(solucionActual[1], mejorSolucionVecindario[1])){
 			if(solucionActual[1] > mejorSolucionVecindario[1]){
 				solucionActual = mejorSolucionVecindario
@@ -144,7 +142,19 @@ function mod(n, m) {
 
 function grasp(iteraciones, matriz, vertices) {
     let mejorSolucion = busquedaLocal(greedyRandomized(matriz, vertices), matriz, vertices)
-    console.log(mejorSolucion)
+    let iteracion = 1
+    while (iteracion < iteraciones) {
+        const solucionActual = busquedaLocal(greedyRandomized(matriz, vertices), matriz, vertices)
+        if (mejorSolucion[1] > solucionActual[1]) {
+            mejorSolucion = solucionActual
+            console.log("Iteracion: ", iteracion, "Costo Total: ", mejorSolucion)
+        }
+        iteracion++ 
+    }
+    console.log("SOLUCION FINAL :")
+    console.log("Circuito ", mejorSolucion[0])
+    console.log("Costo Circuito ", mejorSolucion[1])
+    return mejorSolucion
 }
 
 const matrizEjemplo = [
@@ -155,4 +165,7 @@ const matrizEjemplo = [
 ]
 const vertices = [4,3,5,8]
 
-grasp(1,matrizEjemplo,vertices)
+grasp(10,matrizEjemplo,vertices)
+1 + 5 + 3 + 1 
+
+[ 1, 0, 2, 3, 1 ] -> costo 1->0(3) + 0->2(1) + 2->3(1) + 3->1(5) 
