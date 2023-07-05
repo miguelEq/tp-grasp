@@ -54,12 +54,12 @@ function busquedaLocal(solucion, matriz, vertices) {
 		for (let i = 0; i < solucion[0].length; i++) {
 			const verticeSiguiente = (i + 1) % solucion[0].length
 			const costoNuevo = costoIntercambio(i, verticeSiguiente, solucionActual, matriz, vertices)
-            console.log("costo swap")
-            console.log(costoNuevo, i, verticeSiguiente)
 			if(costoNuevo < mejorSolucionVecindario[1]){
 				mejorSolucionVecindario = [swap(i, verticeSiguiente, [...solucionActual[0]]), costoNuevo]
 			}
 		}
+        console.log("FIN---------")
+        console.log(mejorSolucionVecindario)
 		if(!mejoroCosto(solucionActual[1], mejorSolucionVecindario[1])){
 			if(solucionActual[1] > mejorSolucionVecindario[1]){
 				solucionActual = mejorSolucionVecindario
@@ -73,17 +73,13 @@ function busquedaLocal(solucion, matriz, vertices) {
 }
 
 function costoIntercambio(primero, segundo, solucion, matriz, vertices) {
-        // console.log("---costoIntercambio---")
-        // console.log(solucion)
-        // console.log(primero, segundo)
-
         let listaVerticesSolucion = solucion[0]
         let verticeAnterior = listaVerticesSolucion[mod(primero - 1, solucion[0].length)]
         let costoSwapPrimero
         if (verticeAnterior === listaVerticesSolucion[primero]) {
             costoSwapPrimero = 
-            matriz[listaVerticesSolucion[mod(primero - 2, solucion[0].length)]][listaVerticesSolucion[segundo]] -
-            matriz[listaVerticesSolucion[mod(primero - 2, solucion[0].length)]][verticeAnterior] - 
+            (matriz[listaVerticesSolucion[mod(primero - 2, solucion[0].length)]][listaVerticesSolucion[segundo]] -
+            matriz[listaVerticesSolucion[mod(primero - 2, solucion[0].length)]][verticeAnterior]) - 
             vertices[listaVerticesSolucion[primero]] + vertices[listaVerticesSolucion[segundo]]  //resto 1 aparicion de primero y sumo otra aparicion de segundo
         } else {
             costoSwapPrimero = matriz[verticeAnterior][listaVerticesSolucion[segundo]] - matriz[verticeAnterior][listaVerticesSolucion[primero]]
@@ -93,20 +89,46 @@ function costoIntercambio(primero, segundo, solucion, matriz, vertices) {
         let costoSwapSegundo
         if (verticeSiguiente === listaVerticesSolucion[segundo]) {
             costoSwapSegundo = 
-            matriz[listaVerticesSolucion[primero]][listaVerticesSolucion[mod(segundo + 2, solucion[0].length)]] -
-            matriz[verticeSiguiente][listaVerticesSolucion[mod(segundo + 2, solucion[0].length)]] -
+            (matriz[listaVerticesSolucion[primero]][listaVerticesSolucion[mod(segundo + 2, solucion[0].length)]] -
+            matriz[verticeSiguiente][listaVerticesSolucion[mod(segundo + 2, solucion[0].length)]]) -
             vertices[listaVerticesSolucion[verticeSiguiente]] + vertices[listaVerticesSolucion[primero]]  //resto 1 aparicion de primero y sumo otra aparicion de second
 
         } else {
             costoSwapSegundo = matriz[listaVerticesSolucion[primero]][verticeSiguiente] - matriz[listaVerticesSolucion[segundo]][verticeSiguiente]
         }
+        console.log("COSTO SWAP ")
+        console.log("COSTO SWAP ", solucion)
+        console.log(`primero ${primero} segundo ${segundo}`)
+        console.log(solucion[1])
+        console.log(costoSwapPrimero)
+        console.log(costoSwapSegundo)
+
         return solucion[1] + costoSwapPrimero + costoSwapSegundo
 }
 
 function swap(primero, segundo, solucion){ //O(1)
-	const tmp = solucion[primero]
-	solucion[primero] = solucion[segundo]
-	solucion[segundo] = tmp
+	console.log("swap solucion")
+    console.log(primero, segundo, solucion)
+    const tmp1 = solucion[primero]
+    const tmp2 = solucion[segundo]
+    if (primero === 0) {
+        solucion[primero] = tmp2
+        solucion[segundo] = tmp1
+        solucion[solucion.length-1] = tmp2
+    } else {
+        solucion[primero] = tmp2
+        solucion[segundo] = tmp1
+    }
+    if (segundo === (solucion.length -1)) {
+        solucion[primero] = tmp2
+        solucion[segundo] = tmp1
+        solucion[0] = tmp1
+
+    } else {
+        solucion[primero] = tmp2
+        solucion[segundo] = tmp1
+    }
+    console.log(solucion)
 	return solucion
 }
 
