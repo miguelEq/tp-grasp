@@ -1,3 +1,5 @@
+const { getInstanciaPrueba } = require("./utils");
+
 const getAristas = (matriz, verticeInicio) => {
     let aristas = []
     matriz[verticeInicio].forEach((v,verticeDestino) => {
@@ -43,7 +45,7 @@ function greedyRandomized(matriz, vertices) {
     return [res, costo]
 } 
 
-function obtenerRandom(adyacentes){
+function obtenerRandom(adyacentes){ //me quedo con el primero entre el 10%
 	const randomAdyacente = Math.floor(
 		Math.random() * (adyacentes.length / (adyacentes.length < 10 ? 2 : 10))) 
 	return randomAdyacente
@@ -108,7 +110,7 @@ function swapArista(posArista, solucion, matriz) {
     return {solucionNueva: aristasSolucionConSwap, nuevoCosto:nuevoCosto}
 }
 
-function mejoroCosto(costoActual, costoNuevo){ // O(1) retorna true si la solucion nueva es mejor en un 5% o mas
+function mejoroCosto(costoActual, costoNuevo){ // retorna true si la solucion nueva es mejor en un 5% o mas
 	const mejoraEsperada = (costoActual * 2) / 100
 	return (costoActual - costoNuevo) >= mejoraEsperada
 }
@@ -143,4 +145,8 @@ const matrizEjemplo = [
 ]
 const vertices = [7,5,4,6]
 
-grasp(2,matrizEjemplo,vertices)
+async function main(pathInstancia) {
+    const { vertices, matriz } = await getInstanciaPrueba(pathInstancia)
+    grasp(1,matriz,vertices) 
+} 
+main('./instancias/test_graph_10.txt')
