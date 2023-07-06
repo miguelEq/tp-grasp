@@ -134,7 +134,8 @@ async function main(i,pathInstancia,pathResultado) {
     const resultado = grasp(i,matriz,vertices)
     guardarResultado(resultado,pathResultado) 
 } 
+
 //Ejecuciones de distintas instancias
-main(30,'./instancias/test_graph_100.txt','./resultados/output_test_graph_100.txt')
-// main(120,'./instancias/test_graph_300.txt','./resultados/output_test_graph_300.txt')
-// main(30,'./instancias/test_graph_500.txt','./resultados/output_test_graph_500.txt')
+// main(10,'./instancias/test_graph_100.txt','./resultados/output_test_graph_100.txt')
+// main(10,'./instancias/test_graph_300.txt','./resultados/output_test_graph_300.txt')
+// main(10,'./instancias/test_graph_500.txt','./resultados/output_test_graph_500.txt')
