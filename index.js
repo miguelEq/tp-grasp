@@ -1,4 +1,4 @@
-const { getInstanciaPrueba } = require("./utils");
+const { getInstanciaPrueba, guardarResultado } = require("./utils");
 
 const getAristas = (matriz, verticeInicio) => {
     let aristas = []
@@ -40,8 +40,6 @@ function greedyRandomized(matriz, vertices) {
     }
     res.push(aristaCompletaCircuito)
     costo += aristaCompletaCircuito.peso + vertices[aristaCompletaCircuito.verticeOrigen]
-    console.log("Resultado Greddy randomized")
-    console.log([res, costo])
     return [res, costo]
 } 
 
@@ -55,7 +53,6 @@ function obtenerRandom(adyacentes){ //me quedo con el primero entre el 10%
 function busquedaLocal(solucion, matriz) {
 	let peorVecindario = false
 	let solucionActual = solucion
-    console.log("Busqueda Local")
 	while(!peorVecindario){ 
 		let mejorSolucionVecindario = solucionActual
 		for (let i = 0; i < solucion[0].length; i++) {
@@ -106,7 +103,6 @@ function swapArista(posArista, solucion, matriz) {
     const nuevoCosto = costoSolucion 
         + (swapAristaAnterior.peso - aristasSolucion[posAristaAnterior].peso) 
         + (swapAristaSiguiente.peso - aristasSolucion[posAristaSiguiente].peso)
-    console.log({solucionNueva: aristasSolucionConSwap, nuevoCosto:nuevoCosto, posAristaASwapear:posArista})    
     return {solucionNueva: aristasSolucionConSwap, nuevoCosto:nuevoCosto}
 }
 
@@ -127,26 +123,20 @@ function grasp(iteraciones, matriz, vertices) {
         const solucionActual = busquedaLocal(greedyRandomized(matriz, vertices), matriz)
         if (mejorSolucion[1] > solucionActual[1]) {
             mejorSolucion = solucionActual
-            console.log("Iteracion: ", iteracion, "Costo Total: ", mejorSolucion)
         }
         iteracion++ 
     }
-    console.log("SOLUCION FINAL :")
-    console.log("Circuito ", mejorSolucion[0])
-    console.log("Costo Circuito ", mejorSolucion[1])
     return mejorSolucion
 }
 
-const matrizEjemplo = [
-    [0,2,3,1],
-    [2,0,4,2],
-    [3,4,0,5],
-    [1,2,5,0]
-]
-const vertices = [7,5,4,6]
-
-async function main(pathInstancia) {
+async function main(i,pathInstancia,pathResultado) {
     const { vertices, matriz } = await getInstanciaPrueba(pathInstancia)
-    grasp(1,matriz,vertices) 
+    const resultado = grasp(i,matriz,vertices)
+    guardarResultado(resultado,pathResultado) 
 } 
-main('./instancias/test_graph_10.txt')
+//Ejecuciones de distintas instancias
+// main(30,'./instancias/test_graph_10.txt','./resultados/output_test_graph_10.txt')
+// main(30,'./instancias/test_graph_100.txt','./resultados/output_test_graph_100.txt')
+// main(30,'./instancias/test_graph_300.txt','./resultados/output_test_graph_300.txt')
+// main(30,'./instancias/test_graph_500.txt','./resultados/output_test_graph_500.txt')
+main(30,'./instancias/test_graph_1000.txt','./resultados/output_test_graph_1000.txt')

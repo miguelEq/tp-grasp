@@ -21,4 +21,9 @@ async function getInstanciaPrueba(path) {
   }
 }
 
-module.exports = { getInstanciaPrueba }
+async function guardarResultado(resultado, path){
+  const sol = resultado[0].map(s => `(${s.verticeOrigen},${s.verticeDestino}) `)
+  await fs.writeFile(path,  `Costo Total: ${resultado[1]}, Solucion: ${sol}`)
+}
+
+module.exports = { getInstanciaPrueba, guardarResultado }
