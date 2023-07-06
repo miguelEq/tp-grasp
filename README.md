@@ -5,4 +5,4 @@
   - En el archivo index.js se encuentran comentadas las ejecuciones para cada archivo de instancia con 10 iteraciones las cuales se pueden modificar por la cantidad de iteraciones a elección. 
   - En la consola ejecutar el siguiente comando: 
   <pre><code>npm start</pre></code>
-  - Se guardará el resultado de la ejecución al finalizar en un archivo llamado: resultado.txt
+  - Se guardará el resultado de la ejecución al finalizar en la carpeta /resultados. 
