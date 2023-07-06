@@ -43,9 +43,9 @@ function greedyRandomized(matriz, vertices) {
     return [res, costo]
 } 
 
-function obtenerRandom(adyacentes){ //me quedo con el primero entre el 10%
+function obtenerRandom(adyacentes){ //me quedo con el primero entre el 5%
 	const randomAdyacente = Math.floor(
-		Math.random() * (adyacentes.length / (adyacentes.length < 10 ? 2 : 10))) 
+		Math.random() * (adyacentes.length / (adyacentes.length < 10 ? 1 : 20))) 
 	return randomAdyacente
 }
 
@@ -135,8 +135,6 @@ async function main(i,pathInstancia,pathResultado) {
     guardarResultado(resultado,pathResultado) 
 } 
 //Ejecuciones de distintas instancias
-// main(30,'./instancias/test_graph_10.txt','./resultados/output_test_graph_10.txt')
-// main(30,'./instancias/test_graph_100.txt','./resultados/output_test_graph_100.txt')
-// main(30,'./instancias/test_graph_300.txt','./resultados/output_test_graph_300.txt')
+main(30,'./instancias/test_graph_100.txt','./resultados/output_test_graph_100.txt')
+// main(120,'./instancias/test_graph_300.txt','./resultados/output_test_graph_300.txt')
 // main(30,'./instancias/test_graph_500.txt','./resultados/output_test_graph_500.txt')
-main(30,'./instancias/test_graph_1000.txt','./resultados/output_test_graph_1000.txt')
