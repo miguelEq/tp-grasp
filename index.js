@@ -13,28 +13,32 @@ function greedyRandomized(matriz, vertices) {
     const visitados = new Array(vertices.length).fill(false) 
     visitados[actual] = true
     let totalVisitados = 1
-    let costo = vertices[actual] //costo del vertice inicial
+    let costo = 0 
     let res = []
-    res.push(actual)
     while (totalVisitados < vertices.length) {
         const aristas = getAristas(matriz, actual)
             .filter(arista => !visitados[arista.verticeDestino])
             .sort((a,b) => {
-                return a.peso + vertices[a.verticeDestino] - b.peso + vertices[b.verticeDestino]
+                return a.peso - b.peso
             })
-        const siguiente = aristas[obtenerRandom(aristas)]
-        res.push(siguiente.verticeDestino)
-        actual = siguiente.verticeDestino
+        const arista = aristas[obtenerRandom(aristas)]
+        res.push(arista)
+        actual = arista.verticeDestino
         visitados[actual] = true
         totalVisitados++
-        costo += siguiente.peso + vertices[actual]
+        costo += arista.peso + vertices[arista.verticeOrigen]
     }
     //agrego la arista que regresa al vertice inicial para completar el circuito
-    const aristaInicio = res[0] 
-    const aristaFin = res[res.length-1]
-    res.push(aristaInicio)
-    costo += matriz[aristaFin][aristaInicio] + vertices[aristaInicio]
-    console.log("---GreedyRandomized solucion---")
+    const ultimoVertice = res[res.length-1].verticeDestino 
+    const verticeInicio = res[0].verticeOrigen
+    const aristaCompletaCircuito = {
+        verticeOrigen:ultimoVertice,
+        verticeDestino: verticeInicio,
+        peso:matriz[ultimoVertice][verticeInicio]
+    }
+    res.push(aristaCompletaCircuito)
+    costo += aristaCompletaCircuito.peso + vertices[aristaCompletaCircuito.verticeOrigen]
+    console.log("Resultado Greddy randomized")
     console.log([res, costo])
     return [res, costo]
 } 
@@ -46,16 +50,16 @@ function obtenerRandom(adyacentes){
 }
 
 
-function busquedaLocal(solucion, matriz, vertices) {
+function busquedaLocal(solucion, matriz) {
 	let peorVecindario = false
 	let solucionActual = solucion
+    console.log("Busqueda Local")
 	while(!peorVecindario){ 
 		let mejorSolucionVecindario = solucionActual
 		for (let i = 0; i < solucion[0].length; i++) {
-			const verticeSiguiente = (i + 1) % solucion[0].length
-			const costoNuevo = costoIntercambio(i, verticeSiguiente, solucionActual, matriz, vertices)
-			if(costoNuevo < mejorSolucionVecindario[1]){
-				mejorSolucionVecindario = [swap(i, verticeSiguiente, [...solucionActual[0]]), costoNuevo]
+            const { solucionNueva, nuevoCosto } = swapArista(i, solucion, matriz) 
+			if(nuevoCosto < mejorSolucionVecindario[1]){
+				mejorSolucionVecindario = [solucionNueva, nuevoCosto]
 			}
 		}
 		if(!mejoroCosto(solucionActual[1], mejorSolucionVecindario[1])){
@@ -70,64 +74,38 @@ function busquedaLocal(solucion, matriz, vertices) {
 	return solucionActual
 }
 
-function costoIntercambio(primero, segundo, solucion, matriz, vertices) {
-        let listaVerticesSolucion = solucion[0]
-        let verticeAnterior = listaVerticesSolucion[mod(primero - 1, solucion[0].length)]
-        let costoSwapPrimero
-        if (verticeAnterior === listaVerticesSolucion[primero]) {
-            costoSwapPrimero = 
-            (matriz[listaVerticesSolucion[mod(primero - 2, solucion[0].length)]][listaVerticesSolucion[segundo]] -
-            matriz[listaVerticesSolucion[mod(primero - 2, solucion[0].length)]][verticeAnterior]) - 
-            vertices[listaVerticesSolucion[primero]] + vertices[listaVerticesSolucion[segundo]]  //resto 1 aparicion de primero y sumo otra aparicion de segundo
-        } else {
-            costoSwapPrimero = matriz[verticeAnterior][listaVerticesSolucion[segundo]] - matriz[verticeAnterior][listaVerticesSolucion[primero]]
-        }
-
-        let verticeSiguiente = listaVerticesSolucion[mod(segundo + 1, solucion[0].length)]
-        let costoSwapSegundo
-        if (verticeSiguiente === listaVerticesSolucion[segundo]) {
-            costoSwapSegundo = 
-            (matriz[listaVerticesSolucion[primero]][listaVerticesSolucion[mod(segundo + 2, solucion[0].length)]] -
-            matriz[verticeSiguiente][listaVerticesSolucion[mod(segundo + 2, solucion[0].length)]]) -
-            vertices[listaVerticesSolucion[verticeSiguiente]] + vertices[listaVerticesSolucion[primero]]  //resto 1 aparicion de primero y sumo otra aparicion de second
-
-        } else {
-            costoSwapSegundo = matriz[listaVerticesSolucion[primero]][verticeSiguiente] - matriz[listaVerticesSolucion[segundo]][verticeSiguiente]
-        }
-        console.log("COSTO SWAP ")
-        console.log("COSTO SWAP ", solucion)
-        console.log(`primero ${primero} segundo ${segundo}`)
-        console.log(solucion[1])
-        console.log(costoSwapPrimero)
-        console.log(costoSwapSegundo)
-
-        return solucion[1] + costoSwapPrimero + costoSwapSegundo
-}
-
-function swap(primero, segundo, solucion){ //O(1)
-	console.log("swap solucion")
-    console.log(primero, segundo, solucion)
-    const tmp1 = solucion[primero]
-    const tmp2 = solucion[segundo]
-    if (primero === 0) {
-        solucion[primero] = tmp2
-        solucion[segundo] = tmp1
-        solucion[solucion.length-1] = tmp2
-    } else {
-        solucion[primero] = tmp2
-        solucion[segundo] = tmp1
+function swapArista(posArista, solucion, matriz) {
+    const aristasSolucion = solucion[0] 
+    const costoSolucion = solucion[1] 
+    let posAristaAnterior = mod(posArista - 1, aristasSolucion.length)
+    let posAristaSiguiente = mod(posArista + 1, aristasSolucion.length)
+    const swapArista = {
+        verticeOrigen: aristasSolucion[posArista].verticeDestino,
+        verticeDestino: aristasSolucion[posArista].verticeOrigen,
+        peso: aristasSolucion[posArista].peso
     }
-    if (segundo === (solucion.length -1)) {
-        solucion[primero] = tmp2
-        solucion[segundo] = tmp1
-        solucion[0] = tmp1
 
-    } else {
-        solucion[primero] = tmp2
-        solucion[segundo] = tmp1
+    let swapAristaAnterior = {
+        verticeOrigen: aristasSolucion[posAristaAnterior].verticeOrigen,
+        verticeDestino: swapArista.verticeOrigen
     }
-    console.log(solucion)
-	return solucion
+    swapAristaAnterior.peso = matriz[swapAristaAnterior.verticeOrigen][swapAristaAnterior.verticeDestino]
+
+    let swapAristaSiguiente = {
+        verticeOrigen: swapArista.verticeDestino,
+        verticeDestino: aristasSolucion[posAristaSiguiente].verticeDestino
+    }
+    swapAristaSiguiente.peso =  matriz[swapAristaSiguiente.verticeOrigen][swapAristaSiguiente.verticeDestino]
+    
+    let aristasSolucionConSwap = [...aristasSolucion]
+    aristasSolucionConSwap[posArista] = swapArista
+    aristasSolucionConSwap[posAristaAnterior] = swapAristaAnterior
+    aristasSolucionConSwap[posAristaSiguiente] = swapAristaSiguiente
+    const nuevoCosto = costoSolucion 
+        + (swapAristaAnterior.peso - aristasSolucion[posAristaAnterior].peso) 
+        + (swapAristaSiguiente.peso - aristasSolucion[posAristaSiguiente].peso)
+    console.log({solucionNueva: aristasSolucionConSwap, nuevoCosto:nuevoCosto, posAristaASwapear:posArista})    
+    return {solucionNueva: aristasSolucionConSwap, nuevoCosto:nuevoCosto}
 }
 
 function mejoroCosto(costoActual, costoNuevo){ // O(1) retorna true si la solucion nueva es mejor en un 5% o mas
@@ -141,10 +119,10 @@ function mod(n, m) {
 }
 
 function grasp(iteraciones, matriz, vertices) {
-    let mejorSolucion = busquedaLocal(greedyRandomized(matriz, vertices), matriz, vertices)
+    let mejorSolucion = busquedaLocal(greedyRandomized(matriz, vertices), matriz)
     let iteracion = 1
     while (iteracion < iteraciones) {
-        const solucionActual = busquedaLocal(greedyRandomized(matriz, vertices), matriz, vertices)
+        const solucionActual = busquedaLocal(greedyRandomized(matriz, vertices), matriz)
         if (mejorSolucion[1] > solucionActual[1]) {
             mejorSolucion = solucionActual
             console.log("Iteracion: ", iteracion, "Costo Total: ", mejorSolucion)
@@ -158,14 +136,11 @@ function grasp(iteraciones, matriz, vertices) {
 }
 
 const matrizEjemplo = [
-    [0,3,1,5],
-    [3,0,1,4],
-    [1,1,0,1],
-    [5,4,1,0]
+    [0,2,3,1],
+    [2,0,4,2],
+    [3,4,0,5],
+    [1,2,5,0]
 ]
-const vertices = [4,3,5,8]
+const vertices = [7,5,4,6]
 
-grasp(10,matrizEjemplo,vertices)
-1 + 5 + 3 + 1 
-
-[ 1, 0, 2, 3, 1 ] -> costo 1->0(3) + 0->2(1) + 2->3(1) + 3->1(5) 
+grasp(2,matrizEjemplo,vertices)
